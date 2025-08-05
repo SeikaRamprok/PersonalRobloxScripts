@@ -1,0 +1,47 @@
+
+
+-- Notification system
+local function sendNotification(message)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "INF Active",
+        Text = message,
+        Duration = 5
+    })
+end
+
+-- Wait for the player and humanoid to load
+local player = game.Players.LocalPlayer
+repeat task.wait() until player.Character
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+
+-- Function to enable true immortality
+local function enableImmortality()
+    if not humanoid then return end
+
+    -- Set health to max
+    humanoid.MaxHealth = math.huge
+    humanoid.Health = math.huge
+
+    -- Block damage changes from the server
+    local oldHealth = humanoid.Health
+    humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+        if humanoid.Health < oldHealth then
+            humanoid.Health = oldHealth -- Revert health instantly
+        else
+            oldHealth = humanoid.Health -- Allow natural healing
+        end
+    end)
+
+    sendNotification("INF HP ACTIVE from moodeng hub")
+end
+
+-- Apply immortality when character spawns
+player.CharacterAdded:Connect(function(char)
+    character = char
+    humanoid = char:FindFirstChildWhichIsA("Humanoid")
+    enableImmortality()
+end)
+
+-- Initial immortality activation
+enableImmortality()
